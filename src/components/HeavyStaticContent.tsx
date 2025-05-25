@@ -1,7 +1,8 @@
 export default function HeavyStaticContent() {
   // 非常に重い計算処理（ビルド時に実行される）
   const heavyCalculation = () => {
-    const start = Date.now();
+    // 固定の計算時間表示用（PPRでは常に同じ値を表示）
+    const buildTimeCalculation = "ビルド時固定値";
     let result = 0;
     let complexResult = 0;
     
@@ -16,32 +17,31 @@ export default function HeavyStaticContent() {
       complexResult += Math.pow(i, 1.5) + Math.log(i + 1) + Math.tan(i / 1000);
     }
     
-    // 文字列処理も追加
+    // 文字列処理も追加（決定論的に変更）
     let stringResult = '';
     for (let i = 0; i < 10000; i++) {
-      stringResult += `item-${i}-${Math.random().toString(36)}-`;
+      // Math.random()の代わりに決定論的な値を使用
+      const deterministicValue = ((i * 1234567) % 1000).toString(36);
+      stringResult += `item-${i}-${deterministicValue}-`;
     }
     
-    const end = Date.now();
     return { 
       result: Math.round(result), 
       complexResult: Math.round(complexResult),
       stringLength: stringResult.length,
-      duration: end - start 
+      duration: "事前計算済み", // 固定値に変更
+      buildProcess: buildTimeCalculation
     };
   };
 
   const calc = heavyCalculation();
-  // 静的な値（ビルド時に決定）
-  const buildTime = "ビルド時に計算済み";
 
-  // 表示用の静的アイテム（大幅に増加）
-  const staticItems = Array.from({ length: 50 }, (_, i) => ({
+  // 表示用の静的アイテム（500個に増加）
+  const staticItems = Array.from({ length: 500 }, (_, i) => ({
     id: i,
     title: `重い静的アイテム ${i + 1}`,
-    description: `これは非常に重い静的コンテンツのアイテム${i + 1}です。ビルド時に事前レンダリングされます。計算処理: ${Math.pow(i, 2)} + ${Math.sqrt(i * 100)}`,
+    description: `これは非常に重い静的コンテンツのアイテム${i + 1}です。ビルド時に事前レンダリングされます。`,
     color: `hsl(${(i * 137.508) % 360}, 70%, 60%)`,
-    complexity: Math.floor(Math.random() * 1000) + 500,
     metadata: {
       processTime: `${i * 0.1}ms`,
       priority: i % 5,
@@ -62,18 +62,26 @@ export default function HeavyStaticContent() {
       
       <div className="mb-4 p-3 bg-blue-50 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 text-blue-800">重い計算結果</h3>
+        <div className="mb-3 text-xs text-blue-700 bg-blue-100 p-2 rounded">
+          <p><strong>実行された計算処理の詳細：</strong></p>
+          <ul className="list-disc list-inside mt-1 space-y-1">
+            <li><strong>基本計算：</strong> 平方根・正弦・余弦の組み合わせ (Math.sqrt + Math.sin + Math.cos) を2,500万回実行</li>
+            <li><strong>複雑計算：</strong> 累乗・対数・正接の組み合わせ (Math.pow + Math.log + Math.tan) を500万回実行</li>
+            <li><strong>文字列長：</strong> 決定論的な文字列生成処理を1万回実行して総文字数を計算</li>
+          </ul>
+        </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <p className="text-gray-700">基本計算: {calc.result.toLocaleString()}</p>
-            <p className="text-gray-700">複雑計算: {calc.complexResult.toLocaleString()}</p>
+            <p className="text-gray-700">基本計算結果: {calc.result.toLocaleString()}</p>
+            <p className="text-gray-700">複雑計算結果: {calc.complexResult.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-gray-700">文字列長: {calc.stringLength.toLocaleString()}</p>
-            <p className="text-gray-700">計算時間: {calc.duration}ms</p>
+            <p className="text-gray-700">文字列長計算結果: {calc.stringLength.toLocaleString()}</p>
+            <p className="text-gray-700">計算時間: {calc.duration}</p>
           </div>
         </div>
         <p className="text-gray-600 text-xs mt-2">
-          環境: {buildTime}
+          環境: {calc.buildProcess}
         </p>
         <p className="text-green-600 text-xs font-semibold">
           ✅ この重い計算結果も即座に表示されます（PPR効果）
@@ -101,7 +109,6 @@ export default function HeavyStaticContent() {
                   <span className="px-1 py-0.5 bg-gray-200 rounded text-gray-700">
                     {item.metadata.category}
                   </span>
-                  <span className="text-gray-500">複雑度: {item.complexity}</span>
                 </div>
                 <div 
                   className="w-3 h-3 rounded-full"
@@ -131,30 +138,6 @@ export default function HeavyStaticContent() {
               {item.id}
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="p-3 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2 text-gray-800">処理統計</h3>
-        <div className="grid grid-cols-3 gap-4 text-xs">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {(calc.result / 1000000).toFixed(1)}M
-            </div>
-            <div className="text-gray-600">基本計算</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {staticItems.length}
-            </div>
-            <div className="text-gray-600">処理アイテム</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {calc.duration}
-            </div>
-            <div className="text-gray-600">処理時間(ms)</div>
-          </div>
         </div>
       </div>
 

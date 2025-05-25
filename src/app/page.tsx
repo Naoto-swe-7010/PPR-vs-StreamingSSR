@@ -43,14 +43,14 @@ export default function HomePage() {
               <h2 className="text-2xl font-bold text-gray-800 mb-4">PPRの仕組み</h2>
               <div className="space-y-4">
                 <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                  <h3 className="font-semibold text-blue-800 mb-2">静的部分（右の重いコンテンツ + この説明）</h3>
+                  <h3 className="font-semibold text-blue-800 mb-2">静的部分（動的ユーザ情報以外）</h3>
                   <p className="text-blue-700 text-sm">
                     ビルド時に事前レンダリングされ、即座に表示されます。
                     重い計算処理が含まれていても、ユーザーは待機しません。
                   </p>
                 </div>
                 <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
-                  <h3 className="font-semibold text-purple-800 mb-2">動的部分（下のユーザー情報）</h3>
+                  <h3 className="font-semibold text-purple-800 mb-2">動的部分（動的ユーザ情報）</h3>
                   <p className="text-purple-700 text-sm">
                     リクエスト時にサーバーでレンダリングされ、
                     Suspenseでストリーミングされます。
@@ -63,8 +63,8 @@ export default function HomePage() {
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
               <h3 className="font-semibold text-yellow-800 mb-2">🚀 PPRのメリット</h3>
               <p className="text-yellow-700 text-sm">
-                この説明部分と右側の重いコンテンツは**即座に表示**されます。
-                動的部分の読み込み中でもユーザーはコンテンツを閲覧できます。
+                静的部分が即座に表示されます。（CDNでのキャッシュが可能）<br />
+                →静的部分がSSGの動きとなる。
               </p>
             </div>
 
